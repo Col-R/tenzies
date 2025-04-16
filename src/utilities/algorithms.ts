@@ -3,5 +3,6 @@ export function generateAllNewDice() {
 }
 
 export function generateRandomDiceRoll() {
-  return Math.ceil(Math.random() * 6);
+  const value = Math.ceil(Math.random() * 6);
+  return { value: value, isHeld: false };
 }
