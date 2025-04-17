@@ -8,10 +8,22 @@ import { generateAllNewDice } from './utilities/algorithms';
 function App() {
   const [dice, setDice] = useState(generateAllNewDice());
 
+  // toggles isHeld
   function hold(id: string) {
     setDice((prevDice) =>
       prevDice.map((die) => {
         return die.id === id ? { ...die, isHeld: !die.isHeld } : die;
+      })
+    );
+  }
+
+  // rolls the dice, keeps the isHeld dice as is
+  function rollDice() {
+    setDice((prevDice) =>
+      prevDice.map((die) => {
+        return die.isHeld
+          ? die
+          : { ...die, value: Math.ceil(Math.random() * 6) };
       })
     );
   }
@@ -31,7 +43,7 @@ function App() {
         ))}
       </div>
       <button
-        onClick={() => setDice(generateAllNewDice())}
+        onClick={rollDice}
         className='text-xl bg-purple-400 rounded px-6 py-2 hover:bg-purple-500 cursor-pointer transition-colors'
       >
         Roll
