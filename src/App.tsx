@@ -3,12 +3,12 @@ import Confetti from 'react-confetti';
 // components
 import Die from './components/Die';
 
-// functions
+// helper functions
 import { generateAllNewDice } from './utilities/algorithms';
 import useScreenSize from './utilities/dom';
 
 function App() {
-  const [dice, setDice] = useState(generateAllNewDice());
+  const [dice, setDice] = useState(() => generateAllNewDice());
   const [moves, setMoves] = useState(0);
 
   // toggles isHeld
