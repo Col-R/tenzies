@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Confetti from 'react-confetti';
 // components
 import Die from './components/Die';
@@ -11,6 +11,8 @@ function App() {
   const [dice, setDice] = useState(() => generateAllNewDice());
   const [moves, setMoves] = useState(0);
   const [isGameWon, setIsGameWon] = useState(false);
+
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   // toggles isHeld
   function hold(id: string) {
@@ -55,9 +57,22 @@ function App() {
 
   const { width, height } = useScreenSize();
 
+  useEffect(() => {
+    if (isGameWon) {
+      if (buttonRef.current != null) {
+        buttonRef.current.focus();
+      }
+    }
+  }, [isGameWon]);
+
   return (
     <main className='bg-gray-200 mx-auto rounded-lg shadow-lg h-[100%] display flex flex-col justify-center items-center'>
       {isGameWon && <Confetti width={width} height={height} />}
+      <div aria-live='polite' className='sr-only'>
+        {isGameWon && (
+          <p>Congratulations! You won. Press "New Game" to start again.</p>
+        )}
+      </div>
       <p className='text-lg flex justify-center px-5 text-center'>
         {isGameWon
           ? `Well played! You got Tenzies in ${moves} moves!`
@@ -77,6 +92,7 @@ function App() {
       <button
         onClick={buttonClickHandler}
         className='text-xl text-white bg-purple-500 rounded px-6 py-2 hover:bg-purple-600 cursor-pointer transition-colors'
+        ref={buttonRef}
       >
         {isGameWon ? 'New Game' : 'Roll'}
       </button>
