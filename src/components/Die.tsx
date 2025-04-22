@@ -8,6 +8,8 @@ const Die = (props: DieProps) => {
         text-2xl font-bold cursor-pointer hover:translate-y-1 transition-transform
         ${props.isHeld ? 'bg-green-400' : 'bg-white'}`}
       onClick={() => props.hold(props.id)}
+      aria-label={`Die with value of ${props.value}, is currently ${props.isHeld ? 'held' : 'not held'}`}
+      aria-pressed={props.isHeld}
     >
       {props.value}
     </button>

@@ -1,12 +1,18 @@
-import { useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import Confetti from 'react-confetti';
 // components
 import Die from './components/Die';
 
-// functions
+// helper functions
 import { generateAllNewDice } from './utilities/algorithms';
+import useScreenSize from './utilities/dom';
 
 function App() {
-  const [dice, setDice] = useState(generateAllNewDice());
+  const [dice, setDice] = useState(() => generateAllNewDice());
+  const [moves, setMoves] = useState(0);
+  const [isGameWon, setIsGameWon] = useState(false);
+
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   // toggles isHeld
   function hold(id: string) {
@@ -15,6 +21,16 @@ function App() {
         return die.id === id ? { ...die, isHeld: !die.isHeld } : die;
       })
     );
+  }
+
+  function buttonClickHandler() {
+    if (isGameWon === true) {
+      setDice(generateAllNewDice());
+      setIsGameWon(false);
+      setMoves(0);
+    } else {
+      rollDice();
+    }
   }
 
   // rolls the dice, keeps the isHeld dice as is
@@ -26,23 +42,42 @@ function App() {
           : { ...die, value: Math.ceil(Math.random() * 6) };
       })
     );
+    setMoves(moves + 1);
   }
 
   // is game won
-  function gameWon() {
+  useEffect(() => {
     const isHeldAndMatched = (die: any) =>
       die.isHeld && die.value === dice[0].value;
 
     if (dice.every(isHeldAndMatched)) {
-      console.log('Game won!');
-      return true;
+      setIsGameWon(true);
     }
-  }
-  gameWon();
+  }, [dice]);
+
+  const { width, height } = useScreenSize();
+
+  useEffect(() => {
+    if (isGameWon) {
+      if (buttonRef.current != null) {
+        buttonRef.current.focus();
+      }
+    }
+  }, [isGameWon]);
 
   return (
     <main className='bg-gray-200 mx-auto rounded-lg shadow-lg h-[100%] display flex flex-col justify-center items-center'>
-      Care to shoot some dice?
+      {isGameWon && <Confetti width={width} height={height} />}
+      <div aria-live='polite' className='sr-only'>
+        {isGameWon && (
+          <p>Congratulations! You won. Press "New Game" to start again.</p>
+        )}
+      </div>
+      <p className='text-lg flex justify-center px-5 text-center'>
+        {isGameWon
+          ? `Well played! You got Tenzies in ${moves} moves!`
+          : 'Roll until all dice are the same. Click each die to freeze it at its current value between rolls.'}
+      </p>
       <div className='grid grid-cols-5 gap-4 p-4'>
         {dice.map((die) => (
           <Die
@@ -55,10 +90,11 @@ function App() {
         ))}
       </div>
       <button
-        onClick={rollDice}
+        onClick={buttonClickHandler}
         className='text-xl text-white bg-purple-500 rounded px-6 py-2 hover:bg-purple-600 cursor-pointer transition-colors'
+        ref={buttonRef}
       >
-        {gameWon() ? 'New Game' : 'Roll'}
+        {isGameWon ? 'New Game' : 'Roll'}
       </button>
     </main>
   );
